@@ -1,10 +1,25 @@
 const express = require('express');
 const mysql = require('mysql2/promise');
-// Import the dotenv package to load environment variables from the .env file
 require('dotenv').config();
+const cors = require('cors');
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+// Configure CORS to allow requests from any origin.
+// WARNING: This is only for development and is not secure for production.
+// For production, you would specify a list of trusted origins.
+app.use(cors());
+
+// You could also explicitly allow localhost, which might resolve the issue
+// depending on your browser's behavior, but the wildcard is more robust for a demo.
+/*
+const corsOptions = {
+  origin: 'http://localhost'
+};
+app.use(cors(corsOptions));
+*/
+
 
 // Connect to the database using environment variables loaded from .env
 const dbConfig = {
@@ -23,20 +38,16 @@ app.get('/', (req, res) => {
 app.get('/api/users', async (req, res) => {
   let connection;
   try {
-    // Create a database connection
     connection = await mysql.createConnection(dbConfig);
     console.log('Successfully connected to the database.');
 
-    // Execute the query
     const [rows] = await connection.execute('SELECT * FROM users');
 
-    // Send the users as a JSON response
     res.json(rows);
   } catch (err) {
     console.error('Error fetching users:', err);
     res.status(500).json({ error: 'Failed to fetch users' });
   } finally {
-    // Ensure the connection is closed
     if (connection) {
       connection.end();
     }
