@@ -1,10 +1,12 @@
 const express = require('express');
 const mysql = require('mysql2/promise');
+// Import the dotenv package to load environment variables from the .env file
+require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Connect to the database using environment variables from Docker Compose
+// Connect to the database using environment variables loaded from .env
 const dbConfig = {
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
