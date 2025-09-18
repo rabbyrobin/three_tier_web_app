@@ -4,8 +4,11 @@ FROM node:18
 #Set the working directory inside the container
 WORKDIR /app
 
-#Copy package.json and package-lock.json to the container
+#Copy package.json, package-lock.json, and the .env file
 COPY package*.json ./
+
+#We copy the .env file here so it's available when the container runs
+COPY .env ./
 
 #Install the dependencies
 RUN npm install
