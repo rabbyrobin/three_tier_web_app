@@ -1,0 +1,35 @@
+#--- Stage 1: Build the application ---
+#This stage uses a larger base image to install all build dependencies.
+FROM node:18-alpine AS builder
+
+#Set the working directory
+WORKDIR /app
+
+#Copy package.json and package-lock.json to the working directory
+COPY package*.json ./
+
+#Install dependencies, including devDependencies
+RUN npm install
+
+#Copy the application code
+COPY . .
+
+#--- Stage 2: Create the final, smaller image ---
+#This stage uses a lean base image and only copies the necessary runtime files.
+FROM node:18-alpine
+
+#Set the working directory
+WORKDIR /app
+
+#Copy only the production dependencies from the builder stage
+COPY --from=builder /app/node_modules ./node_modules
+
+#Copy the application code
+COPY --from=builder /app/server.js ./server.js
+COPY --from=builder /app/.env ./.env
+
+#Expose the port the app runs on
+EXPOSE 3000
+
+#Set the command to run the application
+CMD ["npm", "start"]
